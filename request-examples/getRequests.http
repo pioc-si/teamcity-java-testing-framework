@@ -1,0 +1,4 @@
+GET http://172.18.0.2:8111/app/rest/buildTypes/id:id
+Accept: application/json
+
+###
