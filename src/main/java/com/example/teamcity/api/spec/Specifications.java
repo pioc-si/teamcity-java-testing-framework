@@ -42,12 +42,6 @@ public class Specifications {
         return requestBuilder.build();
     }
 
-    public RequestSpecification authWithoutCreds(User user) {
-        var requestBuilder = reqBuilder();
-        requestBuilder.setBaseUri("http://" + Config.getProperty("host"));
-        return requestBuilder.build();
-    }
-
 
 
 }

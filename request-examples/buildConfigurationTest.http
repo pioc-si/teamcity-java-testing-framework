@@ -1,12 +1,14 @@
 ### 0. Generate auth token
-GET http://admin:admin@172.18.0.2:8111/authenticationTest.html?csrf
+GET http://172.18.0.2:8111/authenticationTest.html?csrf
 Accept: application/json
+Authorization: Basic admin admin
+
 
 ### 1. Create project
 POST http://172.18.0.2:8111/app/rest/projects
 Content-Type: application/json
 Accept: application/json
-X-TC-CSRF-Token:c421aef9-68b3-423e-9832-b258b0d2d5ac
+X-TC-CSRF-Token:3abd46d5-a140-481c-8678-89e0482d42c6
 
 {
   "parentProject": {
