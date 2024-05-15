@@ -5,7 +5,7 @@ import com.example.teamcity.api.models.*;
 import java.util.Arrays;
 
 public class TestDataGenerator {
-    public TestData generate() {
+    public static TestData generate() {
         var user = User.builder()
                 .username(RandomData.getString())
                 .password(RandomData.getString())

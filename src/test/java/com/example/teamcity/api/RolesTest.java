@@ -18,7 +18,8 @@ import java.util.Arrays;
 public class RolesTest extends BaseApiTest{
 
     @Test
-    public void unauthorizedUser() {
+    public void unauthorizedUserShouldNotHaveRightsToCreateProject() {
+        var testData = testDataStorage.addTestData();
         new UncheckedProject(Specifications.getSpec().unauthSpec())
                 .create(testData.getProject())
                 .then().assertThat().statusCode(HttpStatus.SC_UNAUTHORIZED)
@@ -33,7 +34,8 @@ public class RolesTest extends BaseApiTest{
 
     }
     @Test
-    public void systemAdminTest() {
+    public void systemAdminTestShouldHaveRightsToCreateProject() {
+        var testData = testDataStorage.addTestData();
         testData.getUser().setRoles(TestDataGenerator.generateRoles(Role.SYSTEM_ADMIN));
 
         new CheckedUser(Specifications.getSpec().superUserSpec())
@@ -48,7 +50,27 @@ public class RolesTest extends BaseApiTest{
 
 
     @Test
-    public void projectAdminTest() {
+    public void projectAdminTestShouldHaveRightsToCreateBuildConfigToHisProject() {
+        var testData = testDataStorage.addTestData();
+        testData.getUser().setRoles(TestDataGenerator.generateRoles(Role.PROJECT_ADMIN));
+
+        new CheckedUser(Specifications.getSpec().superUserSpec())
+                .create(testData.getUser());
+
+        new CheckedProject(Specifications.getSpec()
+                .authSpec(testData.getUser()))
+                .create(testData.getProject());
+
+        var buildConfig = new CheckedBuildConfig(Specifications.getSpec().authSpec(testData.getUser()))
+                .create(testData.getBuildType());
+
+
+        softy.assertThat(buildConfig.getId()).isEqualTo(testData.getBuildType().getId());
+    }
+
+    @Test
+    public void projectAdminTestShouldNotHaveRightsToCreateBuildConfigToAnotherProject() {
+        var testData = testDataStorage.addTestData();
         testData.getUser().setRoles(TestDataGenerator.generateRoles(Role.PROJECT_ADMIN));
 
         new CheckedUser(Specifications.getSpec().superUserSpec())
