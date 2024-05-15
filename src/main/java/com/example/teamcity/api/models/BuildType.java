@@ -11,11 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User {
-    private String username;
-    private String password;
-    private Long id;
-    private String email;
-    private Roles roles;
+public class BuildType {
+    private String id;
+    private NewProjectDescription project;
+    private String name;
 
 }

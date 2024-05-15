@@ -3,16 +3,16 @@ package com.example.teamcity.api.requests.checked;
 
 import com.example.teamcity.api.models.Project;
 import com.example.teamcity.api.requests.CrudInterface;
-import com.example.teamcity.api.requests.unchecked.UncheckedProject;
+import com.example.teamcity.api.requests.Request;
 import io.restassured.specification.RequestSpecification;
 import org.apache.http.HttpStatus;
+import com.example.teamcity.api.requests.unchecked.UncheckedProject;
 
-public class CheckedProject implements CrudInterface {
+public class CheckedProject extends Request implements CrudInterface {
 
-    private final RequestSpecification spec;
 
-    public CheckedProject(RequestSpecification user) {
-        this.spec = user;
+    public CheckedProject(RequestSpecification spec) {
+        super(spec);
     }
 
     @Override
@@ -20,7 +20,6 @@ public class CheckedProject implements CrudInterface {
         return new UncheckedProject(spec).create(obj)
                 .then().assertThat().statusCode(HttpStatus.SC_OK)
                 .extract().as(Project.class);
-
     }
 
     @Override
@@ -32,9 +31,10 @@ public class CheckedProject implements CrudInterface {
     }
 
     @Override
-    public Object update(Object obj) {
+    public Object update(String id, Object obj) {
         return null;
     }
+
 
     @Override
     public String delete(String id) {
