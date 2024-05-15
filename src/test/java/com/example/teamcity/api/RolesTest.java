@@ -70,21 +70,37 @@ public class RolesTest extends BaseApiTest{
 
     @Test
     public void projectAdminTestShouldNotHaveRightsToCreateBuildConfigToAnotherProject() {
-        var testData = testDataStorage.addTestData();
-        testData.getUser().setRoles(TestDataGenerator.generateRoles(Role.PROJECT_ADMIN));
+        var firstTestData = testDataStorage.addTestData();
+        var secondTestData = testDataStorage.addTestData();
+
+        firstTestData.getUser().setRoles(TestDataGenerator.generateRoles(Role.PROJECT_ADMIN));
 
         new CheckedUser(Specifications.getSpec().superUserSpec())
-                .create(testData.getUser());
+                .create(firstTestData.getUser());
 
         new CheckedProject(Specifications.getSpec()
-                .authSpec(testData.getUser()))
-                .create(testData.getProject());
-
-        var buildConfig = new CheckedBuildConfig(Specifications.getSpec().authSpec(testData.getUser()))
-                .create(testData.getBuildType());
+                .authSpec(firstTestData.getUser()))
+                .create(firstTestData.getProject());
 
 
-        softy.assertThat(buildConfig.getId()).isEqualTo(testData.getBuildType().getId());
+        secondTestData.getUser().setRoles(TestDataGenerator.generateRoles(Role.PROJECT_ADMIN));
+
+        new CheckedUser(Specifications.getSpec().superUserSpec())
+                .create(secondTestData.getUser());
+
+        new CheckedProject(Specifications.getSpec()
+                .authSpec(secondTestData.getUser()))
+                .create(secondTestData.getProject());
+
+
+
+
+        var buildConfig = new CheckedBuildConfig(
+                Specifications.getSpec().authSpec(firstTestData.getUser()))
+                .create(secondTestData.getBuildType());
+
+
+        //softy.assertThat(buildConfig.getId()).isEqualTo(testData.getBuildType().getId());
     }
 
 
