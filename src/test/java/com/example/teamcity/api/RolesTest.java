@@ -2,21 +2,15 @@ package com.example.teamcity.api;
 
 import com.example.teamcity.api.enums.Role;
 import com.example.teamcity.api.generators.TestDataGenerator;
-import com.example.teamcity.api.models.Roles;
 import com.example.teamcity.api.requests.CheckedRequests;
 import com.example.teamcity.api.requests.UncheckedRequests;
 import com.example.teamcity.api.requests.checked.CheckedBuildConfig;
 import com.example.teamcity.api.requests.checked.CheckedProject;
-import com.example.teamcity.api.requests.checked.CheckedUser;
 import com.example.teamcity.api.requests.unchecked.UncheckedBuildConfig;
-import com.example.teamcity.api.requests.unchecked.UncheckedProject;
 import com.example.teamcity.api.spec.Specifications;
 import org.apache.http.HttpStatus;
-import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.testng.annotations.Test;
-
-import java.util.Arrays;
 
 public class RolesTest extends BaseApiTest{
 
@@ -37,8 +31,9 @@ public class RolesTest extends BaseApiTest{
                         testData.getProject().getId() + "'"));
 
     }
+
     @Test
-    public void systemAdminTestShouldHaveRightsToCreateProject() {
+    public void systemAdminShouldHaveRightsToCreateProject() {
         var testData = testDataStorage.addTestData();
         testData.getUser().setRoles(TestDataGenerator.generateRoles(Role.SYSTEM_ADMIN, "g"));
 

@@ -1,6 +1,5 @@
 package com.example.teamcity.api;
 
-import com.example.teamcity.api.generators.TestDataStorage;
 import com.example.teamcity.api.requests.checked.CheckedUser;
 import com.example.teamcity.api.requests.checked.CheckedProject;
 import com.example.teamcity.api.spec.Specifications;
