@@ -3,9 +3,12 @@ package com.example.teamcity.api;
 import com.example.teamcity.api.enums.Role;
 import com.example.teamcity.api.generators.TestDataGenerator;
 import com.example.teamcity.api.models.Roles;
+import com.example.teamcity.api.requests.CheckedRequests;
+import com.example.teamcity.api.requests.UncheckedRequests;
 import com.example.teamcity.api.requests.checked.CheckedBuildConfig;
 import com.example.teamcity.api.requests.checked.CheckedProject;
 import com.example.teamcity.api.requests.checked.CheckedUser;
+import com.example.teamcity.api.requests.unchecked.UncheckedBuildConfig;
 import com.example.teamcity.api.requests.unchecked.UncheckedProject;
 import com.example.teamcity.api.spec.Specifications;
 import org.apache.http.HttpStatus;
@@ -20,13 +23,14 @@ public class RolesTest extends BaseApiTest{
     @Test
     public void unauthorizedUserShouldNotHaveRightsToCreateProject() {
         var testData = testDataStorage.addTestData();
-        new UncheckedProject(Specifications.getSpec().unauthSpec())
+
+        new UncheckedRequests(Specifications.getSpec().unauthSpec()).getProjectRequest()
                 .create(testData.getProject())
                 .then().assertThat().statusCode(HttpStatus.SC_UNAUTHORIZED)
                 .body(Matchers.equalTo("Authentication required\n" +
                         "To login manually go to \"/login.html\" page"));
 
-        new UncheckedProject(Specifications.getSpec().authSpec(testData.getUser()))
+        uncheckedWithSuperUser.getProjectRequest()
                 .get(testData.getProject().getId())
                 .then().assertThat().statusCode(HttpStatus.SC_NOT_FOUND)
                 .body(Matchers.containsString("No project found by locator 'count:1,id:" +
@@ -36,10 +40,9 @@ public class RolesTest extends BaseApiTest{
     @Test
     public void systemAdminTestShouldHaveRightsToCreateProject() {
         var testData = testDataStorage.addTestData();
-        testData.getUser().setRoles(TestDataGenerator.generateRoles(Role.SYSTEM_ADMIN));
+        testData.getUser().setRoles(TestDataGenerator.generateRoles(Role.SYSTEM_ADMIN, "g"));
 
-        new CheckedUser(Specifications.getSpec().superUserSpec())
-                .create(testData.getUser());
+        checkedWithSuperUser.getUserRequest().create(testData.getUser());
 
         var project = new CheckedProject(Specifications.getSpec()
                 .authSpec(testData.getUser()))
@@ -50,57 +53,49 @@ public class RolesTest extends BaseApiTest{
 
 
     @Test
-    public void projectAdminTestShouldHaveRightsToCreateBuildConfigToHisProject() {
+    public void projectAdminShouldHaveRightsToCreateBuildConfigToHisProject() {
         var testData = testDataStorage.addTestData();
-        testData.getUser().setRoles(TestDataGenerator.generateRoles(Role.PROJECT_ADMIN));
 
-        new CheckedUser(Specifications.getSpec().superUserSpec())
+        checkedWithSuperUser.getProjectRequest()
+                .create(testData.getProject());
+
+        testData.getUser().setRoles(TestDataGenerator.generateRoles(Role.PROJECT_ADMIN, "p:" + testData.getProject().getId()));
+
+        checkedWithSuperUser.getUserRequest()
                 .create(testData.getUser());
 
-        new CheckedProject(Specifications.getSpec()
-                .authSpec(testData.getUser()))
-                .create(testData.getProject());
 
         var buildConfig = new CheckedBuildConfig(Specifications.getSpec().authSpec(testData.getUser()))
                 .create(testData.getBuildType());
-
 
         softy.assertThat(buildConfig.getId()).isEqualTo(testData.getBuildType().getId());
     }
 
     @Test
-    public void projectAdminTestShouldNotHaveRightsToCreateBuildConfigToAnotherProject() {
+    public void projectAdminShouldNotHaveRightsToCreateBuildConfigToAnotherProject() {
         var firstTestData = testDataStorage.addTestData();
         var secondTestData = testDataStorage.addTestData();
 
-        firstTestData.getUser().setRoles(TestDataGenerator.generateRoles(Role.PROJECT_ADMIN));
+        var firstUserRequest = new CheckedRequests(Specifications.getSpec().authSpec(firstTestData.getUser()));
+        var secondUserRequest = new CheckedRequests(Specifications.getSpec().authSpec(secondTestData.getUser()));
 
-        new CheckedUser(Specifications.getSpec().superUserSpec())
-                .create(firstTestData.getUser());
+        checkedWithSuperUser.getProjectRequest().create(firstTestData.getProject());
+        checkedWithSuperUser.getProjectRequest().create(secondTestData.getProject());
 
-        new CheckedProject(Specifications.getSpec()
-                .authSpec(firstTestData.getUser()))
-                .create(firstTestData.getProject());
+        firstTestData.getUser().setRoles(TestDataGenerator
+                .generateRoles(Role.PROJECT_ADMIN, "p:" + firstTestData.getProject().getId()));
 
+        checkedWithSuperUser.getUserRequest().create(firstTestData.getUser());
 
-        secondTestData.getUser().setRoles(TestDataGenerator.generateRoles(Role.PROJECT_ADMIN));
+        secondTestData.getUser().setRoles(TestDataGenerator
+                .generateRoles(Role.PROJECT_ADMIN, "p:" + secondTestData.getProject().getId()));
 
-        new CheckedUser(Specifications.getSpec().superUserSpec())
-                .create(secondTestData.getUser());
+       checkedWithSuperUser.getUserRequest().create(secondTestData.getUser());
 
-        new CheckedProject(Specifications.getSpec()
-                .authSpec(secondTestData.getUser()))
-                .create(secondTestData.getProject());
+       new UncheckedBuildConfig(Specifications.getSpec().authSpec(secondTestData.getUser()))
+                .create(firstTestData.getBuildType())
+               .then().assertThat().statusCode(HttpStatus.SC_FORBIDDEN);
 
-
-
-
-        var buildConfig = new CheckedBuildConfig(
-                Specifications.getSpec().authSpec(firstTestData.getUser()))
-                .create(secondTestData.getBuildType());
-
-
-        //softy.assertThat(buildConfig.getId()).isEqualTo(testData.getBuildType().getId());
     }
 
 

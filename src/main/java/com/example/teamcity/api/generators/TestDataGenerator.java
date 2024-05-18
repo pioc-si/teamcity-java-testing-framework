@@ -41,10 +41,10 @@ public class TestDataGenerator {
                 .build();
     }
 
-    public  static Roles generateRoles(com.example.teamcity.api.enums.Role role) {
+    public  static Roles generateRoles(com.example.teamcity.api.enums.Role role, String scope) {
         return Roles.builder()
                 .role(Arrays.asList(Role.builder()
-                        .roleId(role.getText()).scope("g").build())).build();
+                        .roleId(role.getText()).scope(scope).build())).build();
     }
 
 
