@@ -56,7 +56,7 @@ public class CreateProjectTest extends BaseApiTest{
                 .authSpec(testData.getUser()))
                 .create(longProjectName)
                 .then().assertThat().statusCode(HttpStatus.SC_BAD_REQUEST);
-
+        //Expected status code <400> but was <200>.
     }
 
     @Test
