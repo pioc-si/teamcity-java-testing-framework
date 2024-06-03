@@ -24,10 +24,10 @@ public class ProjectsPage extends Page {
         return generatePageElements(subprojects);
     }
 
-    public List<ProjectElement> generatePageElements(ElementsCollection subprojects) {
+    private List<ProjectElement> generatePageElements(ElementsCollection collection) {
         var elements = new ArrayList<ProjectElement>();
 
-        subprojects.asDynamicIterable().forEach(webElement -> {
+        collection.asDynamicIterable().forEach(webElement -> {
                     var pageElement = new ProjectElement(webElement);
                     elements.add(pageElement);
                 }
