@@ -1,15 +1,16 @@
-package com.example.teamcity.ui.pages;
+package com.example.teamcity.ui.pages.favorites;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.example.teamcity.ui.Selectors;
 import com.example.teamcity.ui.elements.ProjectElement;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.codeborne.selenide.Selenide.elements;
 
-public class ProjectsPage extends Page {
+public class ProjectsPage extends FavoritesPage {
 
     private static final String FAVORITE_PROJECTS_URL = "/favorite/projects";
 
@@ -17,6 +18,7 @@ public class ProjectsPage extends Page {
 
     public ProjectsPage open() {
         Selenide.open(FAVORITE_PROJECTS_URL);
+        waitUntilFavoritePageIsLoaded();
         return this;
     }
 

@@ -7,6 +7,7 @@ import com.example.teamcity.ui.pages.Page;
 
 import java.time.Duration;
 
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.element;
 
 public class FavoritesPage extends Page {
@@ -14,6 +15,6 @@ public class FavoritesPage extends Page {
 
     public void waitUntilFavoritePageIsLoaded() {
         waitUntilPageIsLoaded();
-        header.shouldBe(Condition.visible, Duration.ofSeconds(10));
+        header.shouldBe(visible, Duration.ofSeconds(10));
     }
 }
