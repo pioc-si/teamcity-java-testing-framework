@@ -35,6 +35,8 @@ public class Page {
         savingWaitingMarker.shouldNotBe(visible, Duration.ofMinutes(1));
     }
 
+
+
     public  <T extends PageElement> List<T> generatePageElements(
             ElementsCollection collection,
             Function<SelenideElement, T> creator) {

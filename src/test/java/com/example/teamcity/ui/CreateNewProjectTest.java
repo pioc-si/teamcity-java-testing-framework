@@ -1,5 +1,6 @@
 package com.example.teamcity.ui;
 
+import com.example.teamcity.api.generators.RandomData;
 import com.example.teamcity.ui.pages.favorites.ProjectsPage;
 import com.example.teamcity.ui.pages.admin.CreateNewProject;
 import org.testng.annotations.Test;
@@ -24,6 +25,28 @@ public class CreateNewProjectTest extends BaseUiTest {
                 .getSubprojects()
                 .stream().reduce((first, second) -> second).get()
                 .getHeader().shouldHave(text(testData.getProject().getName()));
+    }
+
+    @Test
+    public void authorizedUserShouldNotBeAbleCreateNewProjectWith256SymbolsName() {
+        var testData = testDataStorage.addTestData();
+        var url = "https://github.com/pioc-si/teamcity-java-testing-framework.git";
+
+        var longProjectName = testData.getProject();
+        longProjectName.setName(RandomData.get256String());
+
+        loginAsUser(testData.getUser());
+
+        new CreateNewProject()
+                .open(testData.getProject().getParentProject().getLocator())
+                .createProjectByUrl(url)
+                .setupProject(longProjectName.getName(), testData.getBuildType().getName());
+
+        new ProjectsPage().open()
+                .getSubprojects()
+                .stream().reduce((first, second) -> second).get()
+                .getHeader().shouldNotHave(text(testData.getProject().getName()));
+        //should be error
     }
 
 }
