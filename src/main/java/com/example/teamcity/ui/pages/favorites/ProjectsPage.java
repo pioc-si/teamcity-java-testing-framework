@@ -3,9 +3,8 @@ package com.example.teamcity.ui.pages.favorites;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.example.teamcity.ui.Selectors;
+import com.example.teamcity.ui.elements.PageElement;
 import com.example.teamcity.ui.elements.ProjectElement;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.codeborne.selenide.Selenide.elements;
@@ -23,18 +22,8 @@ public class ProjectsPage extends FavoritesPage {
     }
 
     public List<ProjectElement> getSubprojects() {
-        return generatePageElements(subprojects);
+        return generatePageElements(subprojects, ProjectElement::new);
     }
 
-    private List<ProjectElement> generatePageElements(ElementsCollection collection) {
-        var elements = new ArrayList<ProjectElement>();
-
-        collection.asDynamicIterable().forEach(webElement -> {
-                    var pageElement = new ProjectElement(webElement);
-                    elements.add(pageElement);
-                }
-        );
-        return elements;
-    }
 
 }

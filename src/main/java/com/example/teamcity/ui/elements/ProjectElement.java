@@ -5,16 +5,16 @@ import com.example.teamcity.ui.Selectors;
 import lombok.Getter;
 
 @Getter
-public class ProjectElement {
+public class ProjectElement extends PageElement {
 
-    private SelenideElement icon;
-    private SelenideElement element;
-    private SelenideElement header;
+    private final SelenideElement icon;
+    private final SelenideElement header;
 
     public ProjectElement(SelenideElement element) {
-        this.element = element;
-        this.header = element.find(Selectors.byDataTest("subproject"));
-        this.icon = element.find("svg");
+        super(element);
+
+        this.header = findElement(Selectors.byDataTest("subproject"));
+        this.icon = findElement("svg");
     }
 
 
