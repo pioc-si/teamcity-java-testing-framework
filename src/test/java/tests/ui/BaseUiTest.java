@@ -18,7 +18,7 @@ public class BaseUiTest extends BaseTest {
         Configuration.remote = Config.getProperty("remote");
         Configuration.reportsFolder = "target/surefire-reports";
         Configuration.downloadsFolder = "target/downloads";
-
+        
         BrowserSettings.setup(Config.getProperty("browser"));
     }
 

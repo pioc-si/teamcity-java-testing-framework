@@ -9,8 +9,9 @@ teamcity_server_container_name="teamcity_server_instance"
 teamcity_agent_container_name="teamcity_agent_instance"
 selenoid_container_name="selenoid_instance"
 selenoid_ui_container_name="selenoid_ui_instance"
+teamcity_server_instance="teamcity-server-instance"
 
-container_names=($teamcity_server_container_name $teamcity_agent_container_name $selenoid_container_name $selenoid_ui_container_name)
+container_names=($teamcity_server_instance $teamcity_agent_container_name $selenoid_container_name $selenoid_ui_container_name)
 workdir_names=($teamcity_server_workdir $teamcity_agent_workdir $selenoid_workdir)
 
 
@@ -39,9 +40,18 @@ done
 ############################################
 echo "Start teamcity server"
 
-cd $ $teamcity_server_instance
+cd $teamcity_server_workdir
+mkdir data
+mkdir logs
 
-docker run --name teamcity-server-instance -v data:/data/teamcity_server/datadir -v logs:/opt/teamcity/logs -p 8111:8111 jetbrains/teamcity-server
+docker run -d --name teamcity-server-instance -v $(pwd)/data:/data/teamcity_server/datadir -v $(pwd)/logs:/opt/teamcity/logs -p 8111:8111 jetbrains/teamcity-server:latest
+
+docker run --rm -v $(pwd)/logs:/opt/teamcity/logs busybox chown -R 1000:1000 /opt/teamcity/logs
+docker run --rm -v $(pwd)/data:/data/teamcity_server/datadir busybox chown -R 1000:1000 /data/teamcity_server/datadir
+
+docker start teamcity-server-instance
+
+
 
 echo "Teamcity Server is running..."
 
@@ -49,7 +59,8 @@ echo "Teamcity Server is running..."
 echo "Start selenoid"
 cd .. && cd $selenoid_workdir
 mkdir config
-cp $teamcity_tests_directory/infra/browsers.json config/
+
+cp ../../infra/browsers.json config/browsers.json
 
 docker run -d   --name $selenoid_container_name -p 4444:4444 -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd)/config/:/etc/selenoid/:ro  aerokube/selenoid:latest-release
 
@@ -64,27 +75,19 @@ done
 ############################################
 echo "Start selenoid-ui"
 
-docker run -d --name $selenoid_ui_container_name  --link selenoid  -p 8080:8080 aerokube/selenoid-ui --selenoid-uri "http://$ip:4444"
+docker run -d --name $selenoid_ui_container_name  --link $selenoid_container_name  -p 8080:8080 aerokube/selenoid-ui --selenoid-uri "http://localhost:4444"
+
 
 ############################################
 echo "Setup teamcity server"
-cd .. && cd ..
-mvn clean test -Dtest=SetupTest#startUpTest
+echo $(pwd)
+cd ../..
+mvn clean test -Dtest=tests.ui.SetupTest#startUpTest
+
 
 ############################################
 echo "Parse superuser token"
-superuser_token=$(grep -o 'Super user authentication token: [0-9]*' $teamcity_tests_directory/infra/$workdir/$teamcity_server_workdir/logs/teamcity-server.log | awk '{print $NF}')
+echo $(pwd)
+superuser_token=$(grep -o 'Super user authentication token: [0-9]*' $workdir/$teamcity_server_workdir/logs/teamcity-server.log | awk '{print $NF}')
 echo "Super user token: $superuser_token"
 
-############################################
-echo "Run system tests"
-cd .. && cd .. && cd ..
-
-echo "host=$ip:8111\nsuperUserToken=$superuser_token\nremote=http://$ip:4444/wd/hub\nbrowser=firefox" > $teamcity_tests_directory/src/main/resources/config.properties
-cat $teamcity_tests_directory/src/main/resources/config.properties
-
-echo "Run API tests"
-mvn test -DsuiteXmlFile=src/test/testng-suites/api-suite.xml
-
-echo "Run UI tests"
-mvn test -DsuiteXmlFile=src/test/testng-suites/ui-suite.xml

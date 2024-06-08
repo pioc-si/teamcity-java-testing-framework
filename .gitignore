@@ -36,3 +36,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+
+### TC infrastr/logs ###
+teamcity_tests_infrastructure/

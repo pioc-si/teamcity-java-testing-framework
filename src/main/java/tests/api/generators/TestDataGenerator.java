@@ -1,6 +1,6 @@
 package tests.api.generators;
 
-import com.example.teamcity.api.models.*;
+import tests.api.models.*;
 import tests.api.enums.Role;
 import tests.api.models.BuildType;
 import tests.api.models.NewProjectDescription;
